@@ -22,12 +22,13 @@ app.use(cors())
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended: false}))
 
-// Routes
+// ROUTES
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+// POST new user
 app.post('/api/users', async (req, res) => {
   try {
     const userObj = {
@@ -38,11 +39,21 @@ app.post('/api/users', async (req, res) => {
     return res.json(newUser)
   } catch (err) {
     console.log(err)
-    return res.json({err: 'Cannot create user, please try again later.'})
+    return res.json({error: 'Cannot create user, please try again.'})
   }
 })
 
-app.get('/api/users', (req, res) => {
+// GET all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const allUsers = await User.find({})
+    return res.json(allUsers)
+  } catch (err) {
+    console.log(err)
+    return res.json({error: 'Something went wrong, please try again.'})
+  }
+
+
   res.send('Get all users')
 })
 
