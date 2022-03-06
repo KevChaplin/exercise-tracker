@@ -4,6 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const { json } = require('express/lib/response')
 const { Schema } = mongoose
 
 // Connect DB
@@ -15,12 +16,13 @@ const connectDB = (url) => {
 const workoutSchema = new Schema ({
   description: String,
   duration: Number,
-  date: { type: Date, default: Date.now }
+  date: String
 })
 const Workout = mongoose.model('Workout', workoutSchema)
 
 const userSchema = new Schema ({
   username: String,
+  count: { type: Number, default: 0 },
   log: [ workoutSchema ]
 })
 const User = mongoose.model('User', userSchema)
@@ -67,25 +69,45 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/users/:_id/exercises', async (req, res) => {
   try {
     const userId = req.params['_id']
-    const user = await User.findById(userId)
-    const { description, duration, date } = req.body
+    // const user = await User.findById(userId)
+    const { description, duration} = req.body
+    const date = !req.body.date ? new Date().toDateString() : new Date(req.body.date).toDateString() 
     const workoutObj = {
       description,
       duration,
-      date: date || undefined
+      date
     }
     const newWorkout = new Workout(workoutObj)
-    user.log.push(newWorkout)
-    await user.save()
-    return res.json(user)
+    User.findByIdAndUpdate(
+      userId, 
+      { $push: {log: newWorkout} }, 
+      {new: true}, 
+      (err, result) => {
+        if (err) {
+          console.log(err)
+          return res.json({error: 'Something went wrong, please check inputs and try again.'})
+        } else {
+          return res.json(result)
+        }
+      }
+    )
   } catch (err) {
     console.log(err)
     return res.json({error: 'Something went wrong, please try again.'})
   }
 })
 
-app.get('/api/users/:_id/logs', (req, res) => {
-  res.send('Get user workout logs')
+// GET user workout logs
+app.get('/api/users/:_id/logs', async (req, res) => {
+  try {
+    const userId = req.params['_id']
+    const user = await User.findById(userId)
+    return res.json(user)
+  } catch (err) {
+    console.log(err)
+    return res.json({error: `No records for User ID: ${req.params['_id']}`})
+  }
+  
 })
 
 
