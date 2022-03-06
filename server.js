@@ -11,11 +11,20 @@ const connectDB = (url) => {
   return mongoose.connect(url)
 }
 
-// Schema
+// Schema - Models
+const workoutSchema = new Schema ({
+  description: String,
+  duration: Number,
+  date: { type: Date, default: Date.now }
+})
+const Workout = mongoose.model('Workout', workoutSchema)
+
 const userSchema = new Schema ({
   username: String,
+  log: [ workoutSchema ]
 })
 const User = mongoose.model('User', userSchema)
+
 
 // Middleware
 app.use(cors())
@@ -52,13 +61,27 @@ app.get('/api/users', async (req, res) => {
     console.log(err)
     return res.json({error: 'Something went wrong, please try again.'})
   }
-
-
-  res.send('Get all users')
 })
 
-app.post('/api/users/:_id/exercises', (req, res) => {
-  res.send('Post user workout')
+// POST workout
+app.post('/api/users/:_id/exercises', async (req, res) => {
+  try {
+    const userId = req.params['_id']
+    const user = await User.findById(userId)
+    const { description, duration, date } = req.body
+    const workoutObj = {
+      description,
+      duration,
+      date: date || undefined
+    }
+    const newWorkout = new Workout(workoutObj)
+    user.log.push(newWorkout)
+    await user.save()
+    return res.json(user)
+  } catch (err) {
+    console.log(err)
+    return res.json({error: 'Something went wrong, please try again.'})
+  }
 })
 
 app.get('/api/users/:_id/logs', (req, res) => {
