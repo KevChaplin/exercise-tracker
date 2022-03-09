@@ -68,8 +68,6 @@ app.get('/api/users', async (req, res) => {
 // POST workout
 app.post('/api/users/:_id/exercises', async (req, res) => {
   try {
-    const userId = req.params['_id']
-    // const user = await User.findById(userId)
     const { description, duration} = req.body
     const date = !req.body.date ? new Date().toDateString() : new Date(req.body.date).toDateString() 
     const workoutObj = {
@@ -78,9 +76,11 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       date
     }
     const newWorkout = new Workout(workoutObj)
+    
+    const userId = req.params['_id']
     User.findByIdAndUpdate(
       userId, 
-      { $push: {log: newWorkout} }, 
+      { $push: {log: newWorkout}, $inc: {count: 1} }, 
       {new: true}, 
       (err, result) => {
         if (err) {
@@ -101,15 +101,22 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
 app.get('/api/users/:_id/logs', async (req, res) => {
   try {
     const userId = req.params['_id']
+    const { from, to, limit } = req.query
     const user = await User.findById(userId)
+    let filteredLog = user.log.filter(item => {
+      dateMin = !from ?  new Date(0) : new Date(from)
+      dateMax = !to ? new Date(2199, 11) : new Date(to)
+      return ( new Date(item.date) >= dateMin && new Date(item.date) <= dateMax)
+    })
+    filteredLog.sort( (item1, item2) => new Date(item1.date) - new Date(item2.date) )
+    const outputLog = filteredLog.slice(filteredLog.length - limit)
+    user.log = outputLog
     return res.json(user)
   } catch (err) {
     console.log(err)
-    return res.json({error: `No records for User ID: ${req.params['_id']}`})
+    return res.json({error: 'No matching records'})
   }
-  
 })
-
 
 // Basic Configuration
 const port = process.env.PORT || 3000
