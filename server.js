@@ -4,7 +4,6 @@ const cors = require('cors')
 require('dotenv').config()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const { json } = require('express/lib/response')
 const { Schema } = mongoose
 
 // Connect DB
