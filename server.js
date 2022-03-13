@@ -65,6 +65,7 @@ app.get('/api/users', async (req, res) => {
 
 // POST workout
 app.post('/api/users/:_id/exercises', async (req, res) => {
+  console.log(req.body)
   try {
     const { description, duration} = req.body
     const date = !req.body.date ? new Date().toDateString() : new Date(req.body.date).toDateString() 
@@ -83,6 +84,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
           console.log(err)
           return res.json({error: 'Something went wrong, please check inputs and try again.'})
         } else {
+          console.log(result)
         return res.json(result)
         }
       }
