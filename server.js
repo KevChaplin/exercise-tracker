@@ -91,6 +91,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
           console.log(err)
           return res.json({error: 'Something went wrong, please check inputs and try again.'})
         } else {
+      console.log(resObj)
         return res.json(resObj)
         }
       }
