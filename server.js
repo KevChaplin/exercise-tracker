@@ -78,19 +78,20 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
     }
   console.log(workoutObj)
     const userId = req.params['_id']
-    const resObj = {
-      ... workoutObj,
-      username: userId
-    }
     User.findByIdAndUpdate(
       userId, 
       { $push: {log: workoutObj}, $inc: {count: 1} }, 
       {new: true}, 
-      (err) => {
+      (err, updatedUser) => {
         if (err) {
           console.log(err)
           return res.json({error: 'Something went wrong, please check inputs and try again.'})
         } else {
+          const resObj = {
+            ... workoutObj,
+            username: updatedUser.username,
+            _id: userId
+          }
       console.log(resObj)
         return res.json(resObj)
         }
