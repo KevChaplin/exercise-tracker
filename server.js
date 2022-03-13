@@ -66,6 +66,8 @@ app.get('/api/users', async (req, res) => {
 // POST workout
 app.post('/api/users/:_id/exercises', async (req, res) => {
   console.log(req.body)
+  console.log(req.params)
+  console.log(req.query)
   try {
     const { description, duration} = req.body
     const date = !req.body.date ? new Date().toDateString() : new Date(req.body.date).toDateString() 
@@ -74,6 +76,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       duration,
       date
     }
+  console.log(workoutObj)
     const userId = req.params['_id']
     User.findByIdAndUpdate(
       userId, 
