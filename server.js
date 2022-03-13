@@ -17,7 +17,6 @@ const workoutSchema = new Schema ({
   duration: Number,
   date: String
 })
-const Workout = mongoose.model('Workout', workoutSchema)
 
 const userSchema = new Schema ({
   username: String,
@@ -74,19 +73,17 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       duration,
       date
     }
-    const newWorkout = new Workout(workoutObj)
-    
     const userId = req.params['_id']
     User.findByIdAndUpdate(
       userId, 
-      { $push: {log: newWorkout}, $inc: {count: 1} }, 
+      { $push: {log: workoutObj}, $inc: {count: 1} }, 
       {new: true}, 
       (err, result) => {
         if (err) {
           console.log(err)
           return res.json({error: 'Something went wrong, please check inputs and try again.'})
         } else {
-          return res.json(result)
+        return res.json(result)
         }
       }
     )
