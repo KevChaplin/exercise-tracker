@@ -71,7 +71,7 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
     const date = !req.body.date ? new Date().toDateString() : new Date(req.body.date).toDateString() 
     const workoutObj = {
       description,
-      duration,
+      duration: Number(duration),
       date
     }
     const userId = req.params['_id']
