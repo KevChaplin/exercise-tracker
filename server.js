@@ -82,13 +82,18 @@ app.post('/api/users/:_id/exercises', async (req, res) => {
       userId, 
       { $push: {log: workoutObj}, $inc: {count: 1} }, 
       {new: true}, 
-      (err, result) => {
+      (err) => {
         if (err) {
           console.log(err)
           return res.json({error: 'Something went wrong, please check inputs and try again.'})
         } else {
           console.log(result)
-        return res.json(result)
+        return res.json({
+          username: userId,
+          description,
+          duration,
+          date,
+        })
         }
       }
     )
